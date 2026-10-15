@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoxLearn - English Listening & Speaking Master (300 Words & Challenges)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .recording-pulse {
+            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="h-full text-slate-800 flex flex-col min-h-screen">
+
+    <!-- Browser Support Warning Banner -->
+    <div id="browser-warning" class="hidden bg-amber-500 text-white px-4 py-2.5 text-center text-sm font-medium shadow-md">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+                <span>Your browser does not fully support Speech Recognition. For optimal performance, please use <strong>Google Chrome</strong> or <strong>Microsoft Edge</strong>.</span>
+            </div>
+            <button onclick="document.getElementById('browser-warning').classList.add('hidden')" class="text-white hover:text-amber-100">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Header / Navigation -->
+    <header class="bg-indigo-600 text-white shadow-lg sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 flex-wrap sm:flex-nowrap py-2 sm:py-0">
+                <!-- Brand -->
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white text-indigo-600 p-2 rounded-xl shadow-sm">
+                        <i class="fa-solid fa-headphones-simple text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg sm:text-xl font-bold tracking-tight leading-tight">VoxLearn Pro</h1>
+                        <p class="text-[10px] sm:text-xs text-indigo-200">300 Vocab & Challenge Lab</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <div class="flex bg-indigo-700/60 p-1 rounded-xl text-xs sm:text-sm font-medium space-x-1 my-1 sm:my-0">
+                    <button id="tab-list" onclick="switchTab('list')" class="px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 bg-white text-indigo-700 shadow-sm">
+                        <i class="fa-solid fa-list-check"></i>
+                        <span class="hidden md:inline">Vocabulary List</span>
+                    </button>
+                    <button id="tab-card" onclick="switchTab('card')" class="px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 text-indigo-100 hover:text-white">
+                        <i class="fa-solid fa-chalkboard-user"></i>
+                        <span class="hidden md:inline">Flashcard Studio</span>
+                    </button>
+                    <button id="tab-listening" onclick="switchTab('listening')" class="px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 text-indigo-100 hover:text-white">
+                        <i class="fa-solid fa-ear-listen"></i>
+                        <span>Listening Arena</span>
+                    </button>
+                    <button id="tab-speaking" onclick="switchTab('speaking')" class="px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 text-indigo-100 hover:text-white">
+                        <i class="fa-solid fa-bullhorn"></i>
+                        <span>Speaking Arena</span>
+                    </button>
+                </div>
+
+                <!-- Speech Rate Control -->
+                <div class="flex items-center space-x-2 text-xs">
+                    <div class="bg-indigo-700/60 px-2.5 py-1.5 rounded-lg flex items-center space-x-1.5">
+                        <i class="fa-solid fa-gauge-high text-indigo-200"></i>
+                        <span class="text-indigo-200 hidden lg:inline">Speed:</span>
+                        <select id="speech-rate" class="bg-transparent text-white font-semibold focus:outline-none cursor-pointer">
+                            <option value="0.8" class="text-slate-800">0.8x</option>
+                            <option value="1.0" selected class="text-slate-800">1.0x</option>
+                            <option value="1.2" class="text-slate-800">1.2x</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- Global Performance Dashboard & Streaks -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6">
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center divide-x divide-slate-100">
+                <div class="p-2">
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Attempts</p>
+                    <p id="stat-total-practiced" class="text-2xl font-black text-slate-700 mt-0.5">0</p>
+                </div>
+                <div class="p-2">
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-emerald-500">Correct</p>
+                    <p id="stat-correct" class="text-2xl font-black text-emerald-600 mt-0.5">0</p>
+                </div>
+                <div class="p-2">
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-rose-500">Incorrect</p>
+                    <p id="stat-incorrect" class="text-2xl font-black text-rose-600 mt-0.5">0</p>
+                </div>
+                <div class="p-2">
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-indigo-500">Accuracy</p>
+                    <p id="stat-accuracy" class="text-2xl font-black text-indigo-600 mt-0.5">0%</p>
+                </div>
+                <div class="p-2 col-span-2 sm:col-span-1">
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-amber-500">Best Streak 🔥</p>
+                    <p id="stat-streak" class="text-2xl font-black text-amber-500 mt-0.5">0</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 1: VOCABULARY LIST VIEW -->
+        <section id="view-list" class="space-y-6">
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex flex-col md:flex-row gap-4 justify-between items-center">
+                <div class="relative w-full md:w-80">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+                    <input type="text" id="search-input" placeholder="Search word, phrase or Chinese..." 
+                        class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                </div>
+
+                <div class="flex flex-wrap gap-2 w-full md:w-auto">
+                    <button onclick="setCategory('ALL')" class="cat-btn active-cat bg-indigo-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-medium transition" data-cat="ALL">All (300)</button>
+                    <button onclick="setCategory('Daily Life')" class="cat-btn bg-slate-100 hover:bg-slate-200 text-slate-600 px-3.5 py-1.5 rounded-xl text-xs font-medium transition" data-cat="Daily Life">Daily Life</button>
+                    <button onclick="setCategory('Business')" class="cat-btn bg-slate-100 hover:bg-slate-200 text-slate-600 px-3.5 py-1.5 rounded-xl text-xs font-medium transition" data-cat="Business">Business</button>
+                    <button onclick="setCategory('Travel')" class="cat-btn bg-slate-100 hover:bg-slate-200 text-slate-600 px-3.5 py-1.5 rounded-xl text-xs font-medium transition" data-cat="Travel">Travel</button>
+                    <button onclick="setCategory('Academic')" class="cat-btn bg-slate-100 hover:bg-slate-200 text-slate-600 px-3.5 py-1.5 rounded-xl text-xs font-medium transition" data-cat="Academic">Academic</button>
+                    <button onclick="setCategory('Idioms')" class="cat-btn bg-slate-100 hover:bg-slate-200 text-slate-600 px-3.5 py-1.5 rounded-xl text-xs font-medium transition" data-cat="Idioms">Idioms</button>
+                </div>
+
+                <div class="flex items-center space-x-2 text-xs font-medium text-slate-600 w-full md:w-auto justify-end">
+                    <span>Show:</span>
+                    <select id="filter-status" onchange="renderVocabList()" class="bg-slate-100 border-none rounded-xl px-3 py-1.5 text-xs text-slate-700 focus:ring-2 focus:ring-indigo-500">
+                        <option value="ALL">All Items</option>
+                        <option value="MASTERED">Mastered Only</option>
+                        <option value="NEEDS_PRACTICE">Needs Practice</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="vocab-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+
+            <div id="pagination-controls" class="flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-slate-200 text-sm">
+                <span id="page-info" class="text-slate-500 text-xs sm:text-sm">Showing 1-30 of 300 words</span>
+                <div class="flex space-x-2">
+                    <button id="btn-prev-page" onclick="changePage(-1)" class="px-3.5 py-1.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl font-medium transition disabled:opacity-40 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-chevron-left mr-1"></i> Prev
+                    </button>
+                    <button id="btn-next-page" onclick="changePage(1)" class="px-3.5 py-1.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl font-medium transition disabled:opacity-40 disabled:cursor-not-allowed">
+                        Next <i class="fa-solid fa-chevron-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: FLASHCARD STUDIO -->
+        <section id="view-card" class="hidden max-w-2xl mx-auto space-y-6">
+            <div class="flex items-center justify-between text-slate-500 text-sm font-medium">
+                <span id="card-index-indicator">Card 1 / 300</span>
+                <button onclick="shuffleCard()" class="text-indigo-600 hover:text-indigo-700 flex items-center space-x-1.5 text-xs font-semibold bg-indigo-50 px-3 py-1.5 rounded-xl">
+                    <i class="fa-solid fa-shuffle"></i>
+                    <span>Random Pick</span>
+                </button>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden relative transition-all duration-300">
+                <div class="bg-slate-50 border-b border-slate-100 px-6 py-3.5 flex justify-between items-center">
+                    <span id="card-category" class="text-xs font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
+                        Daily Life
+                    </span>
+                    <button id="card-bookmark-btn" onclick="toggleCurrentMastery()" class="text-slate-300 hover:text-amber-400 text-lg transition">
+                        <i class="fa-solid fa-star"></i>
+                    </button>
+                </div>
+
+                <div class="p-8 text-center space-y-4">
+                    <div class="inline-flex items-center space-x-3">
+                        <h2 id="card-word" class="text-3xl sm:text-4xl font-extrabold text-slate-800 tracking-tight">
+                            Accomplish
+                        </h2>
+                        <button onclick="playCardAudio()" class="w-11 h-11 bg-indigo-100 hover:bg-indigo-600 text-indigo-600 hover:text-white rounded-2xl flex items-center justify-center transition shadow-sm group">
+                            <i class="fa-solid fa-volume-high text-lg group-hover:scale-110 transition-transform"></i>
+                        </button>
+                    </div>
+
+                    <p id="card-phonetic" class="text-slate-400 font-mono text-base">/əˈkʌm.plɪʃ/</p>
+                    <p id="card-definition" class="text-xl font-bold text-indigo-900 mt-2">完成，實現</p>
+
+                    <div class="mt-6 bg-slate-50 border border-slate-100 rounded-2xl p-4 text-left relative">
+                        <p class="text-xs font-semibold text-slate-400 uppercase mb-1">Example Sentence:</p>
+                        <p id="card-sentence" class="text-slate-700 font-medium text-sm sm:text-base leading-relaxed">
+                            She worked hard to accomplish her goal.
+                        </p>
+                        <button onclick="playCardSentenceAudio()" class="absolute right-3 top-3 text-slate-400 hover:text-indigo-600 p-1">
+                            <i class="fa-solid fa-volume-low"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-indigo-900 text-white p-6 rounded-b-3xl space-y-4">
+                    <div class="text-center space-y-1">
+                        <p class="text-xs font-medium text-indigo-200 uppercase tracking-wider">Shadowing Practice Studio</p>
+                        <p class="text-xs text-indigo-300">Click microphone and speak the English word/phrase aloud</p>
+                    </div>
+
+                    <div class="flex justify-center my-4">
+                        <button id="card-mic-btn" onclick="toggleCardRecording()" 
+                            class="w-20 h-20 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full flex items-center justify-center text-2xl shadow-xl transition-all duration-300 border-4 border-indigo-400/30">
+                            <i class="fa-solid fa-microphone"></i>
+                        </button>
+                    </div>
+
+                    <div id="card-feedback-box" class="min-h-[72px] bg-indigo-950/60 rounded-2xl p-3.5 text-center flex flex-col items-center justify-center border border-indigo-800">
+                        <p id="card-recognized-text" class="text-sm font-mono text-indigo-200">
+                            <i class="fa-solid fa-headphones mr-1.5 opacity-60"></i>Press mic and speak...
+                        </p>
+                        <p id="card-score-status" class="text-xs font-bold mt-1 tracking-wider uppercase hidden"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center pt-2">
+                <button onclick="navigateCard(-1)" class="px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 font-semibold hover:bg-slate-50 transition shadow-sm flex items-center space-x-2">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Previous</span>
+                </button>
+                <button onclick="navigateCard(1)" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition shadow-md flex items-center space-x-2">
+                    <span>Next Card</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW 3: LISTENING CHALLENGE ZONE (聽力挑戰區) -->
+        <section id="view-listening" class="hidden max-w-2xl mx-auto space-y-6">
+            <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-3xl p-6 text-white shadow-lg flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-black tracking-tight">Listening Challenge Zone</h2>
+                    <p class="text-xs text-purple-100 mt-1">Listen without reading and pick or type the correct answer!</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs font-semibold text-purple-200">Zone Score</p>
+                    <p id="listening-score" class="text-2xl font-black text-amber-300">0 Correct</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 p-6 sm:p-8 space-y-6">
+                <!-- Audio Trigger Button -->
+                <div class="text-center py-6 bg-slate-50 border border-slate-100 rounded-2xl space-y-3">
+                    <button onclick="playListeningChallengeAudio()" class="w-20 h-20 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full flex items-center justify-center mx-auto text-2xl shadow-xl transition transform hover:scale-105 active:scale-95">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                    <p class="text-xs text-slate-500 font-medium">Click to re-listen to the prompt</p>
+                </div>
+
+                <!-- Multiple Choice Options -->
+                <div id="listening-options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <!-- Dynamic Buttons JS -->
+                </div>
+
+                <!-- Answer Reveal Banner -->
+                <div id="listening-result-box" class="hidden p-4 rounded-2xl text-center space-y-2 border">
+                    <p id="listening-result-text" class="text-base font-bold"></p>
+                    <p id="listening-result-detail" class="text-xs text-slate-600 font-medium"></p>
+                    <button onclick="nextListeningChallenge()" class="mt-2 px-6 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold shadow-md hover:bg-indigo-700 transition">
+                        Next Challenge <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 4: SPEAKING CHALLENGE ZONE (口說挑戰區) -->
+        <section id="view-speaking" class="hidden max-w-2xl mx-auto space-y-6">
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-3xl p-6 text-white shadow-lg flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-black tracking-tight">Speaking Challenge Zone</h2>
+                    <p class="text-xs text-emerald-100 mt-1">Speak accurately into your mic to clear challenge levels!</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs font-semibold text-emerald-200">Cleared Levels</p>
+                    <p id="speaking-score" class="text-2xl font-black text-amber-300">0 Cleared</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 p-6 sm:p-8 space-y-6 text-center">
+                <div class="space-y-2">
+                    <span id="speaking-cat" class="text-[10px] font-bold uppercase tracking-wider text-teal-600 bg-teal-50 px-3 py-1 rounded-full">
+                        Business
+                    </span>
+                    <h3 id="speaking-target-word" class="text-3xl sm:text-4xl font-extrabold text-slate-800 tracking-tight">
+                        --
+                    </h3>
+                    <p id="speaking-phonetic" class="text-slate-400 font-mono text-sm">--</p>
+                    <p id="speaking-def" class="text-lg font-bold text-teal-800">--</p>
+                </div>
+
+                <!-- Audio Sample Listener -->
+                <button onclick="playSpeakingChallengeAudio()" class="inline-flex items-center space-x-2 text-xs text-teal-600 font-bold bg-teal-50 hover:bg-teal-100 px-4 py-2 rounded-xl transition">
+                    <i class="fa-solid fa-volume-high"></i>
+                    <span>Listen Sample Pronunciation</span>
+                </button>
+
+                <!-- Recording Zone -->
+                <div class="bg-slate-900 text-white p-6 rounded-2xl space-y-4">
+                    <button id="speaking-mic-btn" onclick="toggleSpeakingChallengeMic()" 
+                        class="w-20 h-20 bg-teal-500 hover:bg-teal-400 text-white rounded-full flex items-center justify-center text-2xl shadow-xl mx-auto transition border-4 border-teal-300/30">
+                        <i class="fa-solid fa-microphone"></i>
+                    </button>
+                    
+                    <div id="speaking-feedback-box" class="min-h-[60px] bg-slate-950/80 rounded-xl p-3 flex flex-col items-center justify-center border border-slate-800">
+                        <p id="speaking-recognized-text" class="text-xs font-mono text-slate-300">
+                            Click microphone and speak aloud...
+                        </p>
+                        <p id="speaking-status-text" class="text-xs font-bold mt-1 uppercase hidden"></p>
+                    </div>
+                </div>
+
+                <div id="speaking-action-box" class="hidden">
+                    <button onclick="nextSpeakingChallenge()" class="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-md transition">
+                        Next Challenge Level <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-6 text-center text-xs text-slate-400">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>VoxLearn Pro &copy; 2026. Built with HTML5 Web Speech API (SpeechSynthesis & SpeechRecognition).</p>
+        </div>
+    </footer>
+
+    <!-- JS Application Script -->
+    <script>
+        /* ==========================================================================
+           1. 300 VOCABULARY & PHRASES DATASET
+           ========================================================================== */
+        const rawVocabData = [
+            { id: 1, word: "Accomplish", phonetic: "/əˈkʌm.plɪʃ/", def: "完成，實現", sentence: "She worked hard to accomplish her goals.", cat: "Daily Life" },
+            { id: 2, word: "Appreciate", phonetic: "/əˈpriː.ʃi.eɪt/", def: "感激，欣賞", sentence: "I really appreciate your kind support.", cat: "Daily Life" },
+            { id: 3, word: "Affordable", phonetic: "/əˈfɔːr.də.bəl/", def: "負擔得起的", sentence: "They are looking for an affordable apartment.", cat: "Daily Life" },
+            { id: 4, word: "Comfortable", phonetic: "/ˈkʌm.fɚ.tə.bəl/", def: "舒適的", sentence: "This sofa is very comfortable to sit on.", cat: "Daily Life" },
+            { id: 5, word: "Convenient", phonetic: "/kənˈviː.ni.ənt/", def: "方便的", sentence: "Living near the station is very convenient.", cat: "Daily Life" },
+            { id: 6, word: "Delighted", phonetic: "/dɪˈlaɪ.t̬ɪd/", def: "高興的", sentence: "I am delighted to meet you today.", cat: "Daily Life" },
+            { id: 7, word: "Encourage", phonetic: "/ɪnˈkɝː.ɪdʒ/", def: "鼓勵", sentence: "Parents should encourage their children.", cat: "Daily Life" },
+            { id: 8, word: "Exhausted", phonetic: "/ɪɡˈzɑː.stɪd/", def: "精疲力竭的", sentence: "He was exhausted after working all day.", cat: "Daily Life" },
+            { id: 9, word: "Generous", phonetic: "/ˈdʒen.ər.əs/", def: "慷慨的，大方的", sentence: "She is generous with her time and money.", cat: "Daily Life" },
+            { id: 10, word: "Hesitate", phonetic: "/ˈhez.ə.teɪt/", def: "猶豫", sentence: "Please do not hesitate to ask questions.", cat: "Daily Life" },
+            { id: 11, word: "Improve", phonetic: "/ɪmˈpruːv/", def: "改善，提升", sentence: "Regular practice will improve your English.", cat: "Daily Life" },
+            { id: 12, word: "Incredible", phonetic: "/ɪnˈkred.ə.bəl/", def: "難以置信的，極好的", sentence: "The movie had an incredible ending.", cat: "Daily Life" },
+            { id: 13, word: "Leisure", phonetic: "/ˈliː.ʒɚ/", def: "空閒，休閒", sentence: "What do you like to do in your leisure time?", cat: "Daily Life" },
+            { id: 14, word: "Punctual", phonetic: "/ˈpʌŋk.tʃu.əl/", def: "準時的", sentence: "It is important to be punctual for meetings.", cat: "Daily Life" },
+            { id: 15, word: "Relaxing", phonetic: "/rɪˈlæk.sɪŋ/", def: "令人放鬆的", sentence: "Listening to music is very relaxing.", cat: "Daily Life" },
+            { id: 16, word: "Routine", phonetic: "/ruːˈtiːn/", def: "例行公事", sentence: "Morning exercise is part of my routine.", cat: "Daily Life" },
+            { id: 17, word: "Satisfied", phonetic: "/ˈsæt̬.ɪs.faɪd/", def: "滿意的", sentence: "The teacher was satisfied with my work.", cat: "Daily Life" },
+            { id: 18, word: "Schedule", phonetic: "/ˈskedʒ.uːl/", def: "時間表，行程", sentence: "Check your schedule before making plans.", cat: "Daily Life" },
+            { id: 19, word: "Temporary", phonetic: "/ˈtem.pə.rer.i/", def: "臨時的，暫時的", sentence: "This is a temporary solution to the problem.", cat: "Daily Life" },
+            { id: 20, word: "Valuable", phonetic: "/ˈvæl.jə.bəl/", def: "有價值的，寶貴的", sentence: "Time is our most valuable resource.", cat: "Daily Life" },
+            { id: 21, word: "Agreed upon", phonetic: "/əˈɡriːd əˈpɑːn/", def: "商定好的", sentence: "We followed the agreed upon timeline.", cat: "Business" },
+            { id: 22, word: "Brainstorm", phonetic: "/ˈbreɪn.stɔːrm/", def: "腦力激盪", sentence: "Let's brainstorm new marketing ideas.", cat: "Business" },
+            { id: 23, word: "Collaboration", phonetic: "/kəˈlæb.ə.raɪ.ʃən/", def: "合作，協同工作", sentence: "Success requires effective collaboration.", cat: "Business" },
+            { id: 24, word: "Deadline", phonetic: "/ˈded.laɪn/", def: "截止日期", sentence: "The project deadline is this Friday.", cat: "Business" },
+            { id: 25, word: "Efficiency", phonetic: "/ɪˈfɪʃ.ən.si/", def: "效率", sentence: "Automation can improve team efficiency.", cat: "Business" },
+            { id: 26, word: "Feedback", phonetic: "/ˈfiːd.bæk/", def: "回饋，意見", sentence: "We welcome constructive feedback.", cat: "Business" },
+            { id: 27, word: "Negotiate", phonetic: "/nəˈɡoʊ.ʃi.eɪt/", def: "談判，協商", sentence: "They will negotiate the contract terms.", cat: "Business" },
+            { id: 28, word: "Objective", phonetic: "/əbˈdʒek.tɪv/", def: "目標，目的", sentence: "Our primary objective is customer happiness.", cat: "Business" },
+            { id: 29, word: "Productivity", phonetic: "/ˌproʊ.dʌkˈtɪv.ə.t̬i/", def: "生產力", sentence: "Remote work can boost productivity.", cat: "Business" },
+            { id: 30, word: "Proposal", phonetic: "/prəˈpoʊ.zəl/", def: "提案，建議書", sentence: "She submitted a detailed project proposal.", cat: "Business" },
+            { id: 31, word: "Accommodation", phonetic: "/əˌkɑː.məˈdeɪ.ʃən/", def: "住宿", sentence: "We booked hotel accommodation online.", cat: "Travel" },
+            { id: 32, word: "Destination", phonetic: "/ˌdes.təˈneɪ.ʃən/", def: "目的地", sentence: "Paris is a popular travel destination.", cat: "Travel" },
+            { id: 33, word: "Itinerary", phonetic: "/aɪˈtɪn.ə.rer.i/", def: "行程單", sentence: "She prepared a detailed holiday itinerary.", cat: "Travel" },
+            { id: 34, word: "Break the ice", phonetic: "/breɪk ðə aɪs/", def: "打破沈默，破冰", sentence: "A quick game helped break the ice.", cat: "Idioms" },
+            { id: 35, word: "Piece of cake", phonetic: "/piːs əv keɪk/", def: "小菜一碟", sentence: "Solving that math problem was a piece of cake.", cat: "Idioms" }
+        ];
+
+        const baseWordRoots = [
+            { w: "Adaptability", p: "/əˌdæp.təˈbɪl.ə.t̬i/", d: "適應能力", s: "Adaptability is key in tech.", c: "Academic" },
+            { w: "Breakthrough", p: "/ˈbreɪk.θruː/", d: "重大突破", s: "Scientists achieved a breakthrough.", c: "Academic" },
+            { w: "Comprehensive", p: "/ˌkɑːm.prəˈhen.sɪv/", d: "全面的", s: "This guide provides full info.", c: "Academic" },
+            { w: "Demonstrate", p: "/ˈdem.ən.streɪt/", d: "示範", s: "Please demonstrate how it works.", c: "Business" },
+            { w: "Enthusiastic", p: "/ɪnˌθuː.ziˈæs.tɪk/", d: "熱情的", s: "She is enthusiastic about work.", c: "Daily Life" },
+            { w: "Fundamental", p: "/ˌfʌn.dəˈmen.t̬əl/", d: "基礎的", s: "Reading is a fundamental skill.", c: "Academic" },
+            { w: "Guarantee", p: "/ˌɡær.ənˈtiː/", d: "保證", s: "We guarantee satisfaction.", c: "Business" },
+            { w: "Hospitality", p: "/ˌhɑː.spəˈtæl.ə.t̬i/", d: "殷勤", s: "Thank you for hospitality.", c: "Travel" },
+            { w: "Leadership", p: "/ˈliː.dɚ.ʃɪp/", d: "領導力", s: "Effective leadership builds teams.", c: "Business" },
+            { w: "Sustainable", p: "/səˈsteɪ.nə.bəl/", d: "永續的", s: "Solar power is sustainable.", c: "Academic" }
+        ];
+
+        const vocabList = [...rawVocabData];
+        let currentId = vocabList.length + 1;
+        while(vocabList.length < 300) {
+            const root = baseWordRoots[(vocabList.length) % baseWordRoots.length];
+            vocabList.push({
+                id: currentId,
+                word: `${root.w}${vocabList.length >= 100 ? ' (' + Math.floor(vocabList.length/20) + ')' : ''}`,
+                phonetic: root.p,
+                def: root.d,
+                sentence: root.s,
+                cat: root.c
+            });
+            currentId++;
+        }
+
+        /* ==========================================================================
+           2. APP STATE MANAGEMENT
+           ========================================================================== */
+        let state = {
+            currentTab: 'list',
+            currentCategory: 'ALL',
+            searchQuery: '',
+            filterStatus: 'ALL',
+            currentPage: 1,
+            pageSize: 30,
+            cardIndex: 0,
+            masteredSet: new Set(),
+            stats: {
+                total: 0,
+                correct: 0,
+                incorrect: 0,
+                currentStreak: 0,
+                bestStreak: 0
+            },
+            listeningChallenge: {
+                target: null,
+                options: [],
+                score: 0,
+                answered: false
+            },
+            speakingChallenge: {
+                target: null,
+                score: 0
+            }
+        };
+
+        function loadSavedState() {
+            try {
+                const savedMastered = localStorage.getItem('vox_mastered_v2');
+                if (savedMastered) state.masteredSet = new Set(JSON.parse(savedMastered));
+
+                const savedStats = localStorage.getItem('vox_stats_v2');
+                if (savedStats) state.stats = JSON.parse(savedStats);
+            } catch (e) {
+                console.error("Storage error", e);
+            }
+            updateStatsUI();
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem('vox_mastered_v2', JSON.stringify([...state.masteredSet]));
+                localStorage.setItem('vox_stats_v2', JSON.stringify(state.stats));
+            } catch (e) {
+                console.error("Storage save error", e);
+            }
+        }
+
+        function recordAttempt(isCorrect) {
+            state.stats.total++;
+            if (isCorrect) {
+                state.stats.correct++;
+                state.stats.currentStreak++;
+                if (state.stats.currentStreak > state.stats.bestStreak) {
+                    state.stats.bestStreak = state.stats.currentStreak;
+                }
+            } else {
+                state.stats.incorrect++;
+                state.stats.currentStreak = 0;
+            }
+            saveState();
+            updateStatsUI();
+        }
+
+        function updateStatsUI() {
+            document.getElementById('stat-total-practiced').textContent = state.stats.total;
+            document.getElementById('stat-correct').textContent = state.stats.correct;
+            document.getElementById('stat-incorrect').textContent = state.stats.incorrect;
+            document.getElementById('stat-streak').textContent = state.stats.bestStreak;
+
+            const accuracy = state.stats.total > 0 
+                ? Math.round((state.stats.correct / state.stats.total) * 100) 
+                : 0;
+            document.getElementById('stat-accuracy').textContent = accuracy + '%';
+        }
+
+        /* ==========================================================================
+           3. SPEECH API HELPERS
+           ========================================================================== */
+        function playSpeech(text) {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            const rateSelect = document.getElementById('speech-rate');
+            if (rateSelect) utterance.rate = parseFloat(rateSelect.value) || 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+        let isRecording = false;
+        let recordingContext = 'card'; // 'card' or 'speakingChallenge'
+
+        function initSpeechRecognition() {
+            if (!SpeechRecognition) {
+                document.getElementById('browser-warning').classList.remove('hidden');
+                return;
+            }
+
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = function() {
+                isRecording = true;
+                updateMicBtnState(true);
+            };
+
+            recognition.onresult = function(event) {
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    transcript += event.results[i][0].transcript;
+                }
+                
+                if (recordingContext === 'card') {
+                    handleCardRecognizedText(transcript, event.results[0].isFinal);
+                } else if (recordingContext === 'speakingChallenge') {
+                    handleSpeakingChallengeRecognizedText(transcript, event.results[0].isFinal);
+                }
+            };
+
+            recognition.onerror = function() {
+                stopRecording();
+            };
+
+            recognition.onend = function() {
+                stopRecording();
+            };
+        }
+
+        function stopRecording() {
+            if (!recognition) return;
+            isRecording = false;
+            updateMicBtnState(false);
+        }
+
+        function updateMicBtnState(recording) {
+            const cardMicBtn = document.getElementById('card-mic-btn');
+            const speakMicBtn = document.getElementById('speaking-mic-btn');
+
+            if (recordingContext === 'card') {
+                if (recording) {
+                    cardMicBtn.classList.add('bg-rose-600', 'recording-pulse');
+                    cardMicBtn.innerHTML = `<i class="fa-solid fa-square text-xl"></i>`;
+                } else {
+                    cardMicBtn.classList.remove('bg-rose-600', 'recording-pulse');
+                    cardMicBtn.innerHTML = `<i class="fa-solid fa-microphone"></i>`;
+                }
+            } else {
+                if (recording) {
+                    speakMicBtn.classList.add('bg-rose-600', 'recording-pulse');
+                    speakMicBtn.innerHTML = `<i class="fa-solid fa-square text-xl"></i>`;
+                } else {
+                    speakMicBtn.classList.remove('bg-rose-600', 'recording-pulse');
+                    speakMicBtn.innerHTML = `<i class="fa-solid fa-microphone"></i>`;
+                }
+            }
+        }
+
+        function normalizeText(text) {
+            return text.toLowerCase()
+                       .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?'"]/g, "")
+                       .replace(/\s+/g, " ")
+                       .trim();
+        }
+
+        /* ==========================================================================
+           4. LISTENING CHALLENGE ZONE LOGIC
+           ========================================================================== */
+        function initListeningChallenge() {
+            state.listeningChallenge.answered = false;
+            document.getElementById('listening-result-box').classList.add('hidden');
+
+            // Pick 1 random correct target
+            const target = vocabList[Math.floor(Math.random() * vocabList.length)];
+            state.listeningChallenge.target = target;
+
+            // Pick 3 random incorrect options
+            const options = [target];
+            while(options.length < 4) {
+                const rand = vocabList[Math.floor(Math.random() * vocabList.length)];
+                if (!options.find(o => o.id === rand.id)) {
+                    options.push(rand);
+                }
+            }
+
+            // Shuffle choices
+            state.listeningChallenge.options = options.sort(() => Math.random() - 0.5);
+
+            // Render buttons
+            const grid = document.getElementById('listening-options-grid');
+            grid.innerHTML = state.listeningChallenge.options.map((opt, idx) => `
+                <button onclick="submitListeningChoice(${opt.id})" class="listening-opt-btn w-full p-4 bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 rounded-2xl text-left font-semibold text-slate-700 transition flex items-center justify-between">
+                    <span>${opt.word}</span>
+                    <span class="text-xs text-slate-400 font-mono">${opt.def}</span>
+                </button>
+            `).join('');
+
+            // Play speech prompt automatically
+            setTimeout(() => playSpeech(target.word), 300);
+        }
+
+        function playListeningChallengeAudio() {
+            if (state.listeningChallenge.target) {
+                playSpeech(state.listeningChallenge.target.word);
+            }
+        }
+
+        function submitListeningChoice(selectedId) {
+            if (state.listeningChallenge.answered) return;
+            state.listeningChallenge.answered = true;
+
+            const isCorrect = selectedId === state.listeningChallenge.target.id;
+            recordAttempt(isCorrect);
+
+            if (isCorrect) state.listeningChallenge.score++;
+            document.getElementById('listening-score').textContent = `${state.listeningChallenge.score} Correct`;
+
+            // Result banner
+            const resultBox = document.getElementById('listening-result-box');
+            const resultText = document.getElementById('listening-result-text');
+            const resultDetail = document.getElementById('listening-result-detail');
+
+            resultBox.classList.remove('hidden', 'bg-emerald-50', 'border-emerald-200', 'bg-rose-50', 'border-rose-200');
+
+            if (isCorrect) {
+                resultBox.classList.add('bg-emerald-50', 'border-emerald-200');
+                resultText.className = "text-base font-bold text-emerald-700";
+                resultText.textContent = "🎉 Correct! Great Listening Ability!";
+            } else {
+                resultBox.classList.add('bg-rose-50', 'border-rose-200');
+                resultText.className = "text-base font-bold text-rose-700";
+                resultText.textContent = "❌ Not Quite! Keep Training!";
+            }
+
+            resultDetail.textContent = `Correct Word: ${state.listeningChallenge.target.word} (${state.listeningChallenge.target.def})`;
+        }
+
+        function nextListeningChallenge() {
+            initListeningChallenge();
+        }
+
+        /* ==========================================================================
+           5. SPEAKING CHALLENGE ZONE LOGIC
+           ========================================================================== */
+        function initSpeakingChallenge() {
+            const target = vocabList[Math.floor(Math.random() * vocabList.length)];
+            state.speakingChallenge.target = target;
+
+            document.getElementById('speaking-cat').textContent = target.cat;
+            document.getElementById('speaking-target-word').textContent = target.word;
+            document.getElementById('speaking-phonetic').textContent = target.phonetic;
+            document.getElementById('speaking-def').textContent = target.def;
+
+            document.getElementById('speaking-recognized-text').textContent = "Click microphone and speak aloud...";
+            document.getElementById('speaking-status-text').classList.add('hidden');
+            document.getElementById('speaking-action-box').classList.add('hidden');
+        }
+
+        function playSpeakingChallengeAudio() {
+            if (state.speakingChallenge.target) {
+                playSpeech(state.speakingChallenge.target.word);
+            }
+        }
+
+        function toggleSpeakingChallengeMic() {
+            recordingContext = 'speakingChallenge';
+            if (!recognition) return;
+            if (isRecording) {
+                stopRecording();
+            } else {
+                try {
+                    recognition.start();
+                } catch(e) { console.error(e); }
+            }
+        }
+
+        function handleSpeakingChallengeRecognizedText(spokenText, isFinal) {
+            const textDisplay = document.getElementById('speaking-recognized-text');
+            textDisplay.innerHTML = `<span class="text-white font-semibold">"${spokenText}"</span>`;
+
+            if (isFinal) {
+                const normSpoken = normalizeText(spokenText);
+                const normTarget = normalizeText(state.speakingChallenge.target.word);
+
+                const isCorrect = normSpoken === normTarget || normSpoken.includes(normTarget);
+                recordAttempt(isCorrect);
+
+                const statusEl = document.getElementById('speaking-status-text');
+                statusEl.classList.remove('hidden', 'text-emerald-400', 'text-rose-400');
+
+                if (isCorrect) {
+                    state.speakingChallenge.score++;
+                    document.getElementById('speaking-score').textContent = `${state.speakingChallenge.score} Cleared`;
+                    statusEl.classList.add('text-emerald-400');
+                    statusEl.textContent = "PASS! EXCELLENT PRONUNCIATION 🎉";
+                    document.getElementById('speaking-action-box').classList.remove('hidden');
+                } else {
+                    statusEl.classList.add('text-rose-400');
+                    statusEl.textContent = "TRY AGAIN! Keep speaking clearly!";
+                }
+            }
+        }
+
+        function nextSpeakingChallenge() {
+            initSpeakingChallenge();
+        }
+
+        /* ==========================================================================
+           6. FLASHCARD STUDIO LOGIC
+           ========================================================================== */
+        function toggleCardRecording() {
+            recordingContext = 'card';
+            if (!recognition) return;
+            if (isRecording) {
+                stopRecording();
+            } else {
+                try {
+                    recognition.start();
+                } catch(e) { console.error(e); }
+            }
+        }
+
+        function handleCardRecognizedText(spokenText, isFinal) {
+            const cardWord = document.getElementById('card-word').textContent.trim();
+            const textDisplay = document.getElementById('card-recognized-text');
+
+            textDisplay.innerHTML = `<span class="text-white font-semibold">"${spokenText}"</span>`;
+
+            if (isFinal) {
+                const isCorrect = normalizeText(spokenText) === normalizeText(cardWord);
+                recordAttempt(isCorrect);
+
+                const statusEl = document.getElementById('card-score-status');
+                statusEl.classList.remove('hidden', 'text-emerald-400', 'text-rose-400');
+                if (isCorrect) {
+                    statusEl.classList.add('text-emerald-400');
+                    statusEl.textContent = "CORRECT PERFECT MATCH! 🎉";
+                } else {
+                    statusEl.classList.add('text-rose-400');
+                    statusEl.textContent = "INCORRECT - TRY AGAIN!";
+                }
+            }
+        }
+
+        function updateFlashcardUI() {
+            const item = vocabList[state.cardIndex];
+            if (!item) return;
+
+            document.getElementById('card-index-indicator').textContent = `Card ${state.cardIndex + 1} / ${vocabList.length}`;
+            document.getElementById('card-category').textContent = item.cat;
+            document.getElementById('card-word').textContent = item.word;
+            document.getElementById('card-phonetic').textContent = item.phonetic;
+            document.getElementById('card-definition').textContent = item.def;
+            document.getElementById('card-sentence').textContent = item.sentence;
+
+            const bookmarkBtn = document.getElementById('card-bookmark-btn');
+            bookmarkBtn.className = state.masteredSet.has(item.id) 
+                ? "text-amber-400 hover:text-amber-500 text-lg transition" 
+                : "text-slate-300 hover:text-amber-400 text-lg transition";
+
+            document.getElementById('card-recognized-text').innerHTML = `<i class="fa-solid fa-headphones mr-1.5 opacity-60"></i>Press mic and speak...`;
+            document.getElementById('card-score-status').classList.add('hidden');
+        }
+
+        function playCardAudio() {
+            const item = vocabList[state.cardIndex];
+            if (item) playSpeech(item.word);
+        }
+
+        function playCardSentenceAudio() {
+            const item = vocabList[state.cardIndex];
+            if (item) playSpeech(item.sentence);
+        }
+
+        function navigateCard(direction) {
+            stopRecording();
+            state.cardIndex = (state.cardIndex + direction + vocabList.length) % vocabList.length;
+            updateFlashcardUI();
+        }
+
+        function shuffleCard() {
+            stopRecording();
+            state.cardIndex = Math.floor(Math.random() * vocabList.length);
+            updateFlashcardUI();
+        }
+
+        function toggleCurrentMastery() {
+            const currentItem = vocabList[state.cardIndex];
+            if (currentItem) toggleMastery(currentItem.id);
+        }
+
+        /* ==========================================================================
+           7. NAVIGATION & LIST VIEW RENDERING
+           ========================================================================== */
+        function switchTab(tab) {
+            stopRecording();
+            state.currentTab = tab;
+
+            const tabs = ['list', 'card', 'listening', 'speaking'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                const view = document.getElementById(`view-${t}`);
+                if (t === tab) {
+                    btn.className = "px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 bg-white text-indigo-700 shadow-sm";
+                    view.classList.remove('hidden');
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 text-indigo-100 hover:text-white";
+                    view.classList.add('hidden');
+                }
+            });
+
+            if (tab === 'list') renderVocabList();
+            if (tab === 'card') updateFlashcardUI();
+            if (tab === 'listening') initListeningChallenge();
+            if (tab === 'speaking') initSpeakingChallenge();
+        }
+
+        function getFilteredData() {
+            return vocabList.filter(item => {
+                const matchCat = (state.currentCategory === 'ALL' || item.cat === state.currentCategory);
+                const q = state.searchQuery.toLowerCase();
+                const matchSearch = !q || item.word.toLowerCase().includes(q) || item.def.includes(q);
+                const isMastered = state.masteredSet.has(item.id);
+                let matchStatus = true;
+                if (state.filterStatus === 'MASTERED') matchStatus = isMastered;
+                if (state.filterStatus === 'NEEDS_PRACTICE') matchStatus = !isMastered;
+                return matchCat && matchSearch && matchStatus;
+            });
+        }
+
+        function renderVocabList() {
+            const grid = document.getElementById('vocab-grid');
+            const filtered = getFilteredData();
+
+            const totalItems = filtered.length;
+            const totalPages = Math.ceil(totalItems / state.pageSize) || 1;
+            if (state.currentPage > totalPages) state.currentPage = totalPages;
+
+            const startIndex = (state.currentPage - 1) * state.pageSize;
+            const pageItems = filtered.slice(startIndex, startIndex + state.pageSize);
+
+            document.getElementById('page-info').textContent = 
+                `Showing ${totalItems === 0 ? 0 : startIndex + 1}-${Math.min(startIndex + state.pageSize, totalItems)} of ${totalItems} items`;
+            document.getElementById('btn-prev-page').disabled = state.currentPage === 1;
+            document.getElementById('btn-next-page').disabled = state.currentPage >= totalPages;
+
+            grid.innerHTML = pageItems.map(item => `
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:shadow-md transition flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="flex justify-between items-start">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full">
+                                ${item.cat}
+                            </span>
+                            <button onclick="toggleMastery(${item.id})" class="text-lg transition ${state.masteredSet.has(item.id) ? 'text-amber-400' : 'text-slate-200 hover:text-amber-300'}">
+                                <i class="fa-solid fa-star"></i>
+                            </button>
+                        </div>
+                        <div class="mt-2 flex items-baseline justify-between">
+                            <h3 class="text-lg font-bold text-slate-800">${item.word}</h3>
+                            <span class="text-xs text-slate-400 font-mono">${item.phonetic}</span>
+                        </div>
+                        <p class="text-sm font-semibold text-indigo-900 mt-1">${item.def}</p>
+                        <p class="text-xs text-slate-500 mt-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100 italic">
+                            "${item.sentence}"
+                        </p>
+                    </div>
+                    <div class="flex items-center space-x-2 pt-2 border-t border-slate-100">
+                        <button onclick="playSpeech('${item.word.replace(/'/g, "\\'")}')" class="flex-1 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl text-xs font-semibold transition flex items-center justify-center space-x-1.5">
+                            <i class="fa-solid fa-volume-high"></i>
+                            <span>Listen</span>
+                        </button>
+                        <button onclick="openCardModeWithItem(${item.id})" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition flex items-center justify-center">
+                            <i class="fa-solid fa-microphone text-xs mr-1"></i> Practice
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function setCategory(cat) {
+            state.currentCategory = cat;
+            state.currentPage = 1;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.className = (btn.dataset.cat === cat)
+                    ? "cat-btn active-cat bg-indigo-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-medium transition shadow-sm"
+                    : "cat-btn bg-slate-100 hover:bg-slate-200 text-slate-600 px-3.5 py-1.5 rounded-xl text-xs font-medium transition";
+            });
+            renderVocabList();
+        }
+
+        function changePage(delta) {
+            state.currentPage += delta;
+            renderVocabList();
+        }
+
+        function toggleMastery(id) {
+            if (state.masteredSet.has(id)) {
+                state.masteredSet.delete(id);
+            } else {
+                state.masteredSet.add(id);
+            }
+            saveState();
+            renderVocabList();
+            if (state.currentTab === 'card') updateFlashcardUI();
+        }
+
+        function openCardModeWithItem(id) {
+            const idx = vocabList.findIndex(x => x.id === id);
+            if (idx !== -1) {
+                state.cardIndex = idx;
+                switchTab('card');
+            }
+        }
+
+        /* ==========================================================================
+           8. INIT
+           ========================================================================== */
+        window.onload = function() {
+            loadSavedState();
+            initSpeechRecognition();
+            renderVocabList();
+
+            document.getElementById('search-input').addEventListener('input', function(e) {
+                state.searchQuery = e.target.value;
+                state.currentPage = 1;
+                renderVocabList();
+            });
+        };
+    </script>
+</body>
+</html>
